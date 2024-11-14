@@ -1,9 +1,14 @@
-
-### 4. `delete.md`
-```markdown
 # Delete Operation
 
+## Command:
 ```python
-# Deleting the book instance
+from bookshelf.models import Book
+
+# Retrieving the book instance to delete
+book = Book.objects.get(title="Nineteen Eighty-Four")
 book.delete()
-# Expected output: (1, {'bookshelf.Book': 1}) indicating successful deletion.
+
+# Verify deletion by fetching all books
+books = Book.objects.all()
+print(books)
+<QuerySet []>

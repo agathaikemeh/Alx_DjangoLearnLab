@@ -14,3 +14,10 @@ class LibraryDetailView(DetailView):  # Create a class-based view for library de
     model = Library  # Specify the model as Library
     template_name = 'relationship_app/library_detail.html'  # Use this template to render the view
     context_object_name = 'library'  # Set the context variable to 'library'
+from django.http import HttpResponse
+from .models import Book
+
+def list_books(request):
+    books = Book.objects.all()
+    response_text = "\n".join([f"{book.title} by {book.author.name}" for book in books])
+    return HttpResponse(response_text, content_type="text/plain")

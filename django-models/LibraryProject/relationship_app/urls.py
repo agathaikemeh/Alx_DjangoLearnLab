@@ -14,3 +14,8 @@ urlpatterns = [
     path('books/', list_books, name='list_books'),  # URL for listing all books
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # URL for library detail
 ]
+from django.urls import path, include
+
+urlpatterns = [
+    path('relationship/', include('relationship_app.urls')),
+]

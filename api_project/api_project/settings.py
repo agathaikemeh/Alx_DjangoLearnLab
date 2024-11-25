@@ -128,5 +128,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # Enable Token Authentication
     ],
-    # Add any other configurations you might need here in the future
+   'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Default permission for all views
+    ], # Add any other configurations you might need here in the future
 }

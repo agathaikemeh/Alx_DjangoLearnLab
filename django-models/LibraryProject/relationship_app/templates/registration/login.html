@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% load static %} <!-- Load the staticfiles template tag -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Use static to link to static files -->
 </head>
 <body>
     <h1>Login</h1>

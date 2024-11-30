@@ -1,10 +1,9 @@
-# relationship_app/views.py
-
 from django.views.generic.detail import DetailView
 from django.shortcuts import render, redirect  # Used for rendering and redirection
 from django.contrib.auth.views import LoginView, LogoutView  # Built-in views for authentication
 from django.contrib.auth.forms import UserCreationForm  # Built-in form for user registration
 from django.contrib.auth import login  # To log the user in after registration
+from django.http import HttpResponse  # For simple home view
 from .models import Book, Library  # Import your models
 
 # 1. Function-based view for listing books
@@ -58,3 +57,10 @@ class UserLogoutView(LogoutView):
     - Uses the 'logout.html' template to show a logout confirmation message.
     """
     template_name = 'logout.html'  # Specify the template for logout
+
+# 6. Simple home view for redirection
+def home(request):
+    """
+    A simple home page view.
+    """
+    return HttpResponse("Welcome to the Home Page!")

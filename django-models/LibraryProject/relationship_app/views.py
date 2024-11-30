@@ -36,14 +36,14 @@ def register(request):
         form = UserCreationForm(request.POST)  # Create a form instance with POST data
         if form.is_valid():  # Validate the form data
             user = form.save()  # Save the new user to the database
-            login(request, user)  # Automatically log in the user
+            login(request, user)  # Automatically log in the user after registration
             return redirect('home')  # Redirect to the homepage or desired page
     else:
         form = UserCreationForm()  # Create an empty form for GET requests
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form})
 
 # 4. Class-based view for user login
-class UserLoginView(LoginView):
+class CustomLoginView(LoginView):
     """
     Handles user login using Django's built-in LoginView.
     - Uses the 'login.html' template for rendering the login form.
@@ -51,12 +51,13 @@ class UserLoginView(LoginView):
     template_name = 'login.html'  # Specify the template for login
 
 # 5. Class-based view for user logout
-class UserLogoutView(LogoutView):
+class CustomLogoutView(LogoutView):
     """
     Handles user logout using Django's built-in LogoutView.
     - Uses the 'logout.html' template to show a logout confirmation message.
     """
     template_name = 'logout.html'  # Specify the template for logout
+    next_page = 'login'  # Redirect to login page after logout
 
 # 6. Simple home view for redirection
 def home(request):
@@ -64,3 +65,4 @@ def home(request):
     A simple home page view.
     """
     return HttpResponse("Welcome to the Home Page!")
+

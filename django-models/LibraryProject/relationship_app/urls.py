@@ -1,6 +1,6 @@
+from . import views  # Import the views module itself
 from django.urls import path
 from .views import list_books, LibraryDetailView, register, home  # Import the correct views
-from django.contrib.auth import views as auth_views  # Import Django's built-in authentication views
 
 urlpatterns = [
     # Home URL
@@ -11,8 +11,8 @@ urlpatterns = [
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # URL for library detail
 
     # Authentication URLs
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),  # Login URL
-    path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),  # Logout URL
-    path('register/', register, name='register'),  # Register URL
+    path('login/', views.CustomLoginView.as_view(), name='login'),  # Login URL
+    path('logout/', views.CustomLogoutView.as_view(), name='logout'),  # Logout URL
+    path('register/', views.register, name='register'),  # Register URL (Ensure this is correctly included)
 ]
 

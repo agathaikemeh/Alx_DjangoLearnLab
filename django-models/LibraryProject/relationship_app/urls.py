@@ -11,8 +11,8 @@ urlpatterns = [
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # URL for library detail
 
     # Authentication URLs
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),  # Login URL
-    path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),  # Logout URL
+    path('login/', auth_views.LoginView.as_view(template_name='registeration/login.html'), name='login'),  # Login URL
+    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),  # Logout URL
     path('register/', register, name='register'),  # Register URL (function-based)
 ]
 

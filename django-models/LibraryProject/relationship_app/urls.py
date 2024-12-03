@@ -15,6 +15,10 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(template_name='login.html'), name='login'),  # Login URL with template
     path('logout/', views.CustomLogoutView.as_view(template_name='logout.html'), name='logout'),  # Logout URL with template
     path('register/', views.register, name='register'),  # Register URL
-]
 
+    # Role-based URLs
+    path('admin/', views.admin_view, name='admin_view'),  # Admin-only view
+    path('librarian/', views.librarian_view, name='librarian_view'),  # Librarian-only view
+    path('member/', views.member_view, name='member_view'),  # Member-only view
+]
 

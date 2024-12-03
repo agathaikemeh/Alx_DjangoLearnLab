@@ -1,10 +1,11 @@
 from django.views.generic.detail import DetailView
-from django.shortcuts import render, redirect  # Used for rendering and redirection
-from django.contrib.auth.views import LoginView, LogoutView  # Built-in views for authentication
-from django.contrib.auth.forms import UserCreationForm  # Built-in form for user registration
-from django.contrib.auth import login  # To log the user in after registration
-from django.http import HttpResponse  # For simple home view
-from .models import Book, Library  # Import your models
+from django.shortcuts import render, redirect
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.http import HttpResponse
+from django.contrib.auth.decorators import user_passes_test  # Decorator to restrict access based on user role
+from .models import Book, Library, UserProfile  # Import UserProfile for role-based checking
 
 # 1. Function-based view for listing books
 def list_books(request):
@@ -65,4 +66,29 @@ def home(request):
     A simple home page view.
     """
     return HttpResponse("Welcome to the Home Page!")
+
+# 7. Admin view: Only accessible to users with 'Admin' role
+@user_passes_test(lambda u: u.userprofile.role == 'Admin', login_url='login')
+def admin_view(request):
+    """
+    Admin-only view.
+    """
+    return render(request, 'admin_view.html')
+
+# 8. Librarian view: Only accessible to users with 'Librarian' role
+@user_passes_test(lambda u: u.userprofile.role == 'Librarian', login_url='login')
+def librarian_view(request):
+    """
+    Librarian-only view.
+    """
+    return render(request, 'librarian_view.html')
+
+# 9. Member view: Only accessible to users with 'Member' role
+@user_passes_test(lambda u: u.userprofile.role == 'Member', login_url='login')
+def member_view(request):
+    """
+    Member-only view.
+    """
+    return render(request, 'member_view.html')
+
 

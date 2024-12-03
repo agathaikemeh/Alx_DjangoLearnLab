@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.http import HttpResponse
-from django.contrib.auth.decorators import user_passes_test  # Decorator to restrict access based on user role
+from django.contrib.auth.decorators import user_passes_test
 from .models import Book, Library, UserProfile  # Import UserProfile for role-based checking
 
 # 1. Function-based view for listing books
@@ -41,7 +41,7 @@ def register(request):
             return redirect('home')  # Redirect to the homepage or desired page
     else:
         form = UserCreationForm()  # Create an empty form for GET requests
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'relationship_app/register.html', {'form': form})
 
 # 4. Class-based view for user login
 class CustomLoginView(LoginView):

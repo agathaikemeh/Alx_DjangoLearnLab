@@ -1,21 +1,20 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django_filters import rest_framework
-from rest_framework import generics
+from rest_framework import generics, filters  # Import filters module
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework.exceptions import ValidationError
-from rest_framework.filters import SearchFilter, OrderingFilter  # Import necessary filters for search and ordering
-from django_filters.rest_framework import DjangoFilterBackend  # Import DjangoFilterBackend for filtering
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Book
 from .serializers import BookSerializer
 
 def root_view(request):
+    """
+    Root view for the API.
+    """
     return HttpResponse("Welcome to the API!")
 
-# View to list all books with filtering, searching, and ordering capabilities
 class BookListView(generics.ListAPIView):
     """
-    Retrieves a list of all books in the database with filtering, searching, and ordering.
+    Retrieves a list of all books with filtering, searching, and ordering capabilities.
 
     - **URL**: GET /books/
     - **Permissions**: Public (no authentication required).
@@ -26,21 +25,20 @@ class BookListView(generics.ListAPIView):
       - Allows searching by title and author.
       - Allows ordering by title and publication year.
     """
-    queryset = Book.objects.all()  # Retrieve all Book records from the database
-    serializer_class = BookSerializer  # Use the BookSerializer to convert queryset to JSON
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
-    # Specify the filter backends (for filtering, searching, and ordering)
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    # Add filter backends for filtering, searching, and ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
-    # Define the fields that can be used for filtering
-    filterset_fields = ['title', 'author', 'publication_year']  # Users can filter by these fields
+    # Fields available for filtering
+    filterset_fields = ['title', 'author', 'publication_year']
 
-    # Specify the fields that can be searched (will search across title and author)
-    search_fields = ['title', 'author']  # Users can search by title and author
+    # Fields available for search
+    search_fields = ['title', 'author']
 
-    # Define the fields that users can order by
-    ordering_fields = ['title', 'publication_year']  # Users can order by title and publication year
+    # Fields available for ordering
+    ordering_fields = ['title', 'publication_year']
 
-    # Set default ordering (optional)
-    ordering = ['title']  # Default ordering will be by title if no specific ordering is provided
-
+    # Default ordering (optional)
+    ordering = ['title']

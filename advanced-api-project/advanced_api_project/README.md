@@ -122,3 +122,51 @@ The BookUpdateView similarly uses BookSerializer to validate and update the exis
 The BookDeleteView deletes the book using the provided pk and is protected by authentication.
 
 
+
+
+
+Bookstore API
+Welcome to the Bookstore API, a powerful backend application built using Django and Django REST Framework. This API provides endpoints to manage and access information about books, including details such as titles, authors, and publication years.
+
+The API is designed to be user-friendly, allowing developers to easily integrate it into their applications. It includes advanced features like filtering, searching, and ordering, making it simple to retrieve and organize data as needed.
+
+Key Features:
+
+Retrieve a list of books with customizable filters.
+Search books by keywords across multiple fields.
+Order the results to suit your requirements.
+Extendable and scalable for additional features.
+
+
+
+## API Features: Filtering, Searching, and Ordering
+
+### Book List API
+The `BookListView` supports filtering, searching, and ordering of books.
+
+#### **1. Filtering**
+You can filter books using the following query parameters:
+- `title`: Filter by book title.
+- `author`: Filter by author name.
+- `publication_year`: Filter by publication year.
+
+**Examples:**
+- `/books/?title=BookTitle`
+- `/books/?author=AuthorName`
+- `/books/?publication_year=2023`
+
+#### **2. Searching**
+Search for books across the `title` and `author` fields using the `search` parameter.
+
+**Examples:**
+- `/books/?search=keyword`
+
+#### **3. Ordering**
+Order the results using the `ordering` parameter. Add a `-` before the field name for descending order.
+
+**Examples:**
+- `/books/?ordering=title` (Alphabetical order by title)
+- `/books/?ordering=-publication_year` (Descending order by publication year)
+
+#### Default Ordering
+By default, results are ordered by `title`.

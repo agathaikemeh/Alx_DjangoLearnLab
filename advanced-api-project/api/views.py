@@ -1,110 +1,45 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-# Import necessary classes and modules from Django REST Framework
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter, OrderingFilter  # Import necessary filters for search and ordering
+from django_filters.rest_framework import DjangoFilterBackend  # Import DjangoFilterBackend for filtering
 from .models import Book
 from .serializers import BookSerializer
 
 def root_view(request):
     return HttpResponse("Welcome to the API!")
 
-# View to list all books
+# View to list all books with filtering, searching, and ordering capabilities
 class BookListView(generics.ListAPIView):
     """
-    Retrieves a list of all books in the database.
+    Retrieves a list of all books in the database with filtering, searching, and ordering.
 
     - **URL**: GET /books/
     - **Permissions**: Public (no authentication required).
     - **Behavior**:
       - Queries all book records from the database.
       - Serializes the results using the `BookSerializer`.
+      - Allows filtering by title, author, and publication year.
+      - Allows searching by title and author.
+      - Allows ordering by title and publication year.
     """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+    queryset = Book.objects.all()  # Retrieve all Book records from the database
+    serializer_class = BookSerializer  # Use the BookSerializer to convert queryset to JSON
 
+    # Specify the filter backends (for filtering, searching, and ordering)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
 
-# View to retrieve the details of a single book
-class BookDetailView(generics.RetrieveAPIView):
-    """
-    Retrieves the details of a specific book using its primary key.
+    # Define the fields that can be used for filtering
+    filterset_fields = ['title', 'author', 'publication_year']  # Users can filter by these fields
 
-    - **URL**: GET /books/<int:pk>/
-    - **Permissions**: Public (no authentication required).
-    - **Behavior**:
-      - Looks up a book in the database by its primary key (pk).
-      - Serializes the book's data using the `BookSerializer`.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+    # Specify the fields that can be searched (will search across title and author)
+    search_fields = ['title', 'author']  # Users can search by title and author
 
+    # Define the fields that users can order by
+    ordering_fields = ['title', 'publication_year']  # Users can order by title and publication year
 
-# View to create a new book
-class BookCreateView(generics.CreateAPIView):
-    """
-    Allows authenticated users to create a new book.
-
-    - **URL**: POST /books/add/
-    - **Permissions**: Only authenticated users can create books.
-    - **Behavior**:
-      - Validates the data using the `BookSerializer`.
-      - Creates a new book record if data is valid.
-      - Raises a `ValidationError` if the data is invalid.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        """
-        Custom behavior for saving a new book.
-        Ensures validation before saving to the database.
-        """
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            raise ValidationError("Invalid data submitted.")
-
-
-# View to update an existing book
-class BookUpdateView(generics.UpdateAPIView):
-    """
-    Allows authenticated users to update an existing book.
-
-    - **URL**: PUT /books/<int:pk>/edit/
-    - **Permissions**: Only authenticated users can update books.
-    - **Behavior**:
-      - Validates the updated data using the `BookSerializer`.
-      - Updates the book record if data is valid.
-      - Raises a `ValidationError` if the data is invalid.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_update(self, serializer):
-        """
-        Custom behavior for updating a book.
-        Ensures validation before applying updates.
-        """
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            raise ValidationError("Update failed due to invalid data.")
-
-
-# View to delete a book
-class BookDeleteView(generics.DestroyAPIView):
-    """
-    Allows authenticated users to delete a book.
-
-    - **URL**: DELETE /books/<int:pk>/delete/
-    - **Permissions**: Only authenticated users can delete books.
-    - **Behavior**:
-      - Deletes the book record identified by its primary key (pk).
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
+    # Set default ordering (optional)
+    ordering = ['title']  # Default ordering will be by title if no specific ordering is provided
 

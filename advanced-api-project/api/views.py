@@ -1,11 +1,14 @@
 from django.shortcuts import render
-
+from django.http import HttpResponse
 # Import necessary classes and modules from Django REST Framework
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from .models import Book
 from .serializers import BookSerializer
+
+def root_view(request):
+    return HttpResponse("Welcome to the API!")
 
 # View to list all books
 class BookListView(generics.ListAPIView):

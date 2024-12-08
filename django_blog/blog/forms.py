@@ -1,9 +1,7 @@
-
 from django.contrib.auth.forms import UserCreationForm  # Import the built-in user creation form
 from django.contrib.auth.models import User  # Import the built-in User model
 from django import forms  # Import Django's forms module
-from .models import Post  # Import the Post model for creating and updating blog posts
-
+from .models import Post, Comment  # Import the Post and Comment models for creating forms
 
 # -------------------------------------------------------
 # User Registration Form
@@ -73,3 +71,26 @@ class PostForm(forms.ModelForm):
 
         # Return the Post object
         return post
+
+
+# -------------------------------------------------------
+# Comment Form
+# -------------------------------------------------------
+
+# Custom form for creating and updating comments
+class CommentForm(forms.ModelForm):
+    class Meta:
+        # Specify the model and fields this form works with
+        model = Comment  # The form is based on the Comment model
+        fields = ['content']  # Fields to display and process in the form
+
+        # Add custom widgets for better styling and user experience
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',  # Bootstrap class for styling
+                'placeholder': 'Write your comment here...',  # Placeholder text
+                'rows': 3,  # Height of the textarea
+            }),
+        }
+
+

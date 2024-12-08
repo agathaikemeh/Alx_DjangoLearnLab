@@ -21,6 +21,7 @@ urlpatterns = [
     path('', PostListView.as_view(), name='post-list'),  # List all blog posts
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),  # View details of a single post
     path('post/new/', PostCreateView.as_view(), name='post-create'),  # Create a new post
-    path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post-update'),  # Edit an existing post
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),  # Update an existing post
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),  # Delete a post
 ]
+

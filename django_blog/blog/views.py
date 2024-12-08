@@ -3,7 +3,15 @@ from django.contrib.auth.views import LoginView, LogoutView  # Built-in views fo
 from django.contrib.auth.decorators import login_required  # To restrict access to authenticated users
 from django.contrib.auth.models import User  # The built-in User model
 from django.http import HttpResponse  # For sending plain text responses
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView  # CBVs for CRUD
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin  # For permission control
+from django.urls import reverse_lazy  # To redirect after deletion
 from .forms import CustomUserCreationForm  # Import the custom registration form
+from .models import Post  # Import the Post model
+
+# ----------------------------------------
+# User Authentication Views
+# ----------------------------------------
 
 # View to handle user registration
 def register(request):
@@ -39,4 +47,55 @@ def profile(request):
 
     # If the request is not POST, render the profile page with the current user data
     return render(request, 'blog/profile.html', {'user': request.user})
+
+
+# ----------------------------------------
+# Blog Post Management Views (CRUD)
+# ----------------------------------------
+
+# View to list all blog posts
+class PostListView(ListView):
+    model = Post  # Specify the model to fetch data
+    template_name = 'blog/post_list.html'  # Specify the template file
+    context_object_name = 'posts'  # Use 'posts' in the template to access data
+    ordering = ['-published_date']  # Show newest posts first
+
+# View to display details of a single post
+class PostDetailView(DetailView):
+    model = Post  # Specify the model to fetch data
+    template_name = 'blog/post_detail.html'  # Specify the template file
+
+# View to create a new post
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post  # Specify the model to save data
+    fields = ['title', 'content']  # Fields to display in the form
+    template_name = 'blog/post_form.html'  # Template for the form
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user  # Set the logged-in user as the author
+        return super().form_valid(form)  # Validate and save the form
+
+# View to update an existing post
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post  # Specify the model to update data
+    fields = ['title', 'content']  # Fields to display in the form
+    template_name = 'blog/post_form.html'  # Template for the form
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user  # Ensure the logged-in user is the author
+        return super().form_valid(form)  # Validate and save the form
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author  # Allow only the post author to update
+
+# View to delete a post
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post  # Specify the model to delete data
+    template_name = 'blog/post_confirm_delete.html'  # Confirmation template
+    success_url = reverse_lazy('post-list')  # Redirect to post list after deletion
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author  # Allow only the post author to delete
 

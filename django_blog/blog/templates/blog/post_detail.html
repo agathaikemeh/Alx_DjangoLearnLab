@@ -1,7 +1,7 @@
-<!-- Existing content for displaying the blog post -->
+<!-- Display the blog post -->
 <h1>{{ post.title }}</h1>
 <p>{{ post.content }}</p>
-<small>Published on {{ post.published_date }} by {{ post.author }}</small>
+<small>Published on {{ post.published_date|date:"F j, Y, g:i a" }} by {{ post.author }}</small>
 
 <hr>
 
@@ -17,8 +17,9 @@
                 </small>
                 <!-- Check if the logged-in user is the author of the comment -->
                 {% if comment.author == user %}
-                    <a href="{% url 'edit-comment' comment.id %}">Edit</a>
-                    <a href="{% url 'delete-comment' comment.id %}" 
+                    <!-- Updated URLs for class-based views -->
+                    <a href="{% url 'comment-update' comment.id %}">Edit</a>
+                    <a href="{% url 'comment-delete' comment.id %}" 
                        onclick="return confirm('Are you sure you want to delete this comment?');">
                        Delete
                     </a>
@@ -35,7 +36,8 @@
 <!-- Form to Add a New Comment -->
 <h3>Add a Comment</h3>
 {% if user.is_authenticated %}
-    <form method="post" action="{% url 'add-comment' post.id %}">
+    <!-- Updated action for CommentCreateView -->
+    <form method="post" action="{% url 'comment-create' post_id=post.id %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Post Comment</button>
@@ -43,6 +45,7 @@
 {% else %}
     <p>You must <a href="{% url 'login' %}">log in</a> to add a comment.</p>
 {% endif %}
+
 
 
 

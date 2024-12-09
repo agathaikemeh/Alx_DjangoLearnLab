@@ -98,46 +98,46 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # Comment Management Views (CRUD)
 # ----------------------------------------
 
-# View to add a new comment
-@login_required
-def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)  # Retrieve the post associated with the comment
-    if request.method == 'POST':
-        form = CommentForm(request.POST)  # Bind the submitted data to the form
-        if form.is_valid():
-            comment = form.save(commit=False)  # Create a Comment object without saving to the database yet
-            comment.author = request.user  # Associate the comment with the current user
-            comment.post = post  # Link the comment to the retrieved post
-            comment.save()  # Save the comment to the database
-            return redirect('post-detail', pk=post.id)  # Redirect to the post's detail page
-    else:
-        form = CommentForm()  # Display an empty form for GET requests
-    return render(request, 'blog/add_comment.html', {'form': form, 'post': post})
+# Class-based view to create a comment
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user  # Set the comment author
+        form.instance.post = get_object_or_404(Post, id=self.kwargs['post_id'])  # Link the comment to the post
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['post_id']})  # Redirect to the post detail page
 
 
-# View to edit an existing comment
-@login_required
-def edit_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)  # Retrieve the comment to be edited
-    if comment.author != request.user:  # Ensure only the author can edit the comment
-        return redirect('post-detail', pk=comment.post.id)
+# Class-based view to update a comment
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
 
-    if request.method == 'POST':
-        form = CommentForm(request.POST, instance=comment)  # Bind the submitted data to the existing comment
-        if form.is_valid():
-            form.save()  # Save the updated comment
-            return redirect('post-detail', pk=comment.post.id)
-    else:
-        form = CommentForm(instance=comment)  # Prefill the form with existing data
-    return render(request, 'blog/edit_comment.html', {'form': form, 'comment': comment})
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author  # Ensure only the author can edit the comment
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.id})  # Redirect to the post detail page
 
 
-# View to delete a comment
-@login_required
-def delete_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)  # Retrieve the comment to be deleted
-    if comment.author == request.user:  # Ensure only the author can delete the comment
-        comment.delete()  # Delete the comment
-    return redirect('post-detail', pk=comment.post.id)  # Redirect to the associated post
+# Class-based view to delete a comment
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author  # Ensure only the author can delete the comment
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.id})  # Redirect to the post detail page
+
 
 

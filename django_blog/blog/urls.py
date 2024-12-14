@@ -1,6 +1,6 @@
 from django.urls import path  # Import the path function to define URL patterns
 from django.contrib.auth.views import LoginView, LogoutView  # Import built-in authentication views
-from .views import (  # Import views for posts and comments
+from .views import (  # Import views for posts, comments, tagging, and search
     PostListView,         # View to list all blog posts
     PostDetailView,       # View to display details of a single blog post
     PostCreateView,       # View to create a new blog post
@@ -9,6 +9,8 @@ from .views import (  # Import views for posts and comments
     CommentCreateView,    # View to create a new comment
     CommentUpdateView,    # View to update an existing comment
     CommentDeleteView,    # View to delete an existing comment
+    TaggedPostListView,   # View to display posts filtered by tags
+    PostSearchView,       # View to handle search functionality
 )
 
 # URL patterns for the blog app
@@ -57,8 +59,17 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     # Delete an existing comment using CommentDeleteView
     # <int:pk> identifies the comment to be deleted. Restricted to the comment's author
-]
 
+    # ----------------------------------------
+    # Tagging and Search URLs
+    # ----------------------------------------
+
+    path('tag/<str:tag>/', TaggedPostListView.as_view(), name='tagged-posts'),
+    # Filter posts by tags. <str:tag> captures the tag name
+
+    path('search/', PostSearchView.as_view(), name='search-posts'),
+    # Search functionality. Handles search queries passed via GET parameters
+]
 
 
 

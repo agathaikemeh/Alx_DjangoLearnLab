@@ -1,5 +1,6 @@
 from django.db import models  # Import Django's model utilities
 from django.contrib.auth.models import User  # Import Django's built-in User model
+from taggit.managers import TaggableManager  # Import TaggableManager for tagging
 
 # Define the Post model
 class Post(models.Model):
@@ -11,6 +12,8 @@ class Post(models.Model):
     published_date = models.DateTimeField(auto_now_add=True)
     # ForeignKey to associate the post with the author
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    # Tags to allow tagging of posts (many-to-many relationship managed by django-taggit)
+    tags = TaggableManager()  # Adds tagging functionality to the Post model
 
     # String representation of the Post object
     def __str__(self):
@@ -33,5 +36,4 @@ class Comment(models.Model):
     # String representation of the Comment object
     def __str__(self):
         return f'Comment by {self.author} on {self.post}'
-
 

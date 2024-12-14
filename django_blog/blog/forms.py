@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm  # Import the built-in us
 from django.contrib.auth.models import User  # Import the built-in User model
 from django import forms  # Import Django's forms module
 from .models import Post, Comment  # Import the Post and Comment models for creating forms
+from taggit.forms import TagField, TagWidget  # Import TagField and TagWidget from django-taggit
 
 # -------------------------------------------------------
 # User Registration Form
@@ -39,10 +40,19 @@ class CustomUserCreationForm(UserCreationForm):
 
 # Custom form for creating and updating blog posts
 class PostForm(forms.ModelForm):
+    # Add a tags field to allow users to input tags for their posts
+    tags = TagField(
+        required=False,
+        widget=TagWidget(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Add tags, separated by commas'
+        })
+    )
+
     class Meta:
         # Specify the model and fields this form works with
         model = Post  # The form is based on the Post model
-        fields = ['title', 'content']  # Fields to display and process in the form
+        fields = ['title', 'content', 'tags']  # Include the 'tags' field
 
         # Add custom widgets for better styling and user experience
         widgets = {
@@ -65,9 +75,12 @@ class PostForm(forms.ModelForm):
         if request and hasattr(request, 'user'):
             post.author = request.user
 
-        # If commit is True, save the Post object to the database
+        # Save the post instance
         if commit:
             post.save()
+
+        # Save the tags separately after the post object has been saved
+        self.save_m2m()
 
         # Return the Post object
         return post
@@ -92,5 +105,4 @@ class CommentForm(forms.ModelForm):
                 'rows': 3,  # Height of the textarea
             }),
         }
-
 

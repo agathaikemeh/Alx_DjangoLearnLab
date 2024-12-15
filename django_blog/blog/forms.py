@@ -18,19 +18,15 @@ class CustomUserCreationForm(UserCreationForm):
         model = User  # The form is based on the built-in User model
         fields = ['username', 'email', 'password1', 'password2']  # Fields to display and process
 
-    # Overriding the save method to include the email field
     def save(self, commit=True):
-        # Call the parent class's save method to get a User object without saving it to the database yet
-        user = super().save(commit=False)
+        """
+        Override the save method to handle the email field correctly.
+        """
+        user = super().save(commit=False)  # Get a User object without saving it
+        user.email = self.cleaned_data['email']  # Set the email field
 
-        # Add the email field's data to the User object
-        user.email = self.cleaned_data['email']
-
-        # If commit is True, save the User object to the database
         if commit:
-            user.save()
-        
-        # Return the User object
+            user.save()  # Save the User object if commit=True
         return user
 
 
@@ -38,66 +34,61 @@ class CustomUserCreationForm(UserCreationForm):
 # Blog Post Form
 # -------------------------------------------------------
 
-# Custom form for creating and updating blog posts
 class PostForm(forms.ModelForm):
-    # Add a tags field to allow users to input tags for their posts
+    # Add a tags field using TagField with a custom TagWidget for better UI/UX
     tags = TagField(
-        required=False,
+        required=False,  # Tags are optional
         widget=TagWidget(attrs={
-            'class': 'form-control', 
-            'placeholder': 'Add tags, separated by commas'
+            'class': 'form-control',  # Bootstrap class for styling
+            'placeholder': 'Add tags, separated by commas'  # Placeholder text
         })
     )
 
     class Meta:
         # Specify the model and fields this form works with
-        model = Post  # The form is based on the Post model
+        model = Post
         fields = ['title', 'content', 'tags']  # Include the 'tags' field
 
-        # Add custom widgets for better styling and user experience
+        # Custom widgets for title and content fields
         widgets = {
             'title': forms.TextInput(attrs={
-                'class': 'form-control', 
+                'class': 'form-control',
                 'placeholder': 'Enter the title of your post'
             }),
             'content': forms.Textarea(attrs={
-                'class': 'form-control', 
+                'class': 'form-control',
                 'placeholder': 'Write your content here'
             }),
         }
 
-    # Overriding the save method to set the author of the post
     def save(self, commit=True, request=None):
-        # Call the parent class's save method to get a Post object without saving it to the database yet
-        post = super().save(commit=False)
+        """
+        Override the save method to handle tags and set the author of the post.
+        """
+        post = super().save(commit=False)  # Get a Post object without saving it
 
-        # If a request object is provided, set the author to the logged-in user
+        # If a request object is passed, set the author as the logged-in user
         if request and hasattr(request, 'user'):
             post.author = request.user
 
-        # Save the post instance
         if commit:
-            post.save()
+            post.save()  # Save the Post object
+            self.save_m2m()  # Save many-to-many relationships (tags)
 
-        # Save the tags separately after the post object has been saved
-        self.save_m2m()
-
-        # Return the Post object
-        return post
+        return post  # Return the saved Post object
 
 
 # -------------------------------------------------------
 # Comment Form
 # -------------------------------------------------------
 
-# Custom form for creating and updating comments
 class CommentForm(forms.ModelForm):
     class Meta:
         # Specify the model and fields this form works with
-        model = Comment  # The form is based on the Comment model
-        fields = ['content']  # Fields to display and process in the form
+        model = Comment
+        fields = ['content']  # Only the content field is needed for comments
 
-        # Add custom widgets for better styling and user experience
+        # Custom widget for better UI/UX
         widgets = {
             'content': forms.Textarea(attrs={
                 'class': 'form-control',  # Bootstrap class for styling
@@ -105,4 +96,3 @@ class CommentForm(forms.ModelForm):
                 'rows': 3,  # Height of the textarea
             }),
         }
-

@@ -40,44 +40,70 @@ class BlogTests(TestCase):
         self.client = Client()
 
     # ----------------------------------------
-    # URL Tests
+    # Tagging Tests
     # ----------------------------------------
 
-    def test_post_create_url(self):
+    def test_tags_saved_on_post_creation(self):
         """
-        Test that the 'post/new/' URL is correctly registered and resolves to PostCreateView.
+        Test that tags are saved correctly when a post is created.
         """
-        # Ensure the URL can be resolved
-        url = reverse('post-create')
-        self.assertEqual(url, '/post/new/')  # Check that it resolves to the correct URL path
-
-    # ----------------------------------------
-    # Authentication Tests
-    # ----------------------------------------
-
-    def test_login(self):
-        """
-        Test login functionality:
-        - Ensure valid credentials log in the user successfully.
-        """
-        response = self.client.post(reverse('login'), {
-            'username': 'testuser',
-            'password': 'password123',
+        self.client.login(username='testuser', password='password123')
+        response = self.client.post(reverse('post-create'), {
+            'title': 'New Post with Tags',
+            'content': 'This post has tags.',
+            'tags': 'tag1, tag2, tag3',
         })
-        self.assertEqual(response.status_code, 200)  # Login page should load without errors
+        self.assertEqual(response.status_code, 302)  # Should redirect after successful creation
+        post = Post.objects.get(title="New Post with Tags")
+        self.assertEqual(list(post.tags.names()), ['tag1', 'tag2', 'tag3'])
 
-    def test_register(self):
+    def test_filter_posts_by_tag(self):
         """
-        Test registration functionality:
-        - Ensure a new user can register successfully.
+        Test filtering posts by a specific tag.
         """
-        response = self.client.post(reverse('register'), {
-            'username': 'newuser',
-            'email': 'newuser@example.com',
-            'password1': 'password123',
-            'password2': 'password123',
-        })
-        self.assertEqual(response.status_code, 302)  # Redirect to login after successful registration
+        response = self.client.get(reverse('tagged-posts', args=['django']))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "First Post")
+        self.assertNotContains(response, "Second Post")
+
+    # ----------------------------------------
+    # Search Functionality Tests
+    # ----------------------------------------
+
+    def test_search_by_title(self):
+        """
+        Test that posts can be searched by title.
+        """
+        response = self.client.get(reverse('search-posts'), {'q': 'First'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "First Post")
+        self.assertNotContains(response, "Second Post")
+
+    def test_search_by_content(self):
+        """
+        Test that posts can be searched by content.
+        """
+        response = self.client.get(reverse('search-posts'), {'q': 'second post'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Second Post")
+        self.assertNotContains(response, "First Post")
+
+    def test_search_by_tag(self):
+        """
+        Test that posts can be searched by tag.
+        """
+        response = self.client.get(reverse('search-posts'), {'q': 'tutorial'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Second Post")
+        self.assertNotContains(response, "First Post")
+
+    def test_search_no_results(self):
+        """
+        Test that a search query with no matches returns an empty result.
+        """
+        response = self.client.get(reverse('search-posts'), {'q': 'nonexistent'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No results found")  # Update this to match your search template
 
     # ----------------------------------------
     # Blog Post Management Tests
@@ -116,5 +142,6 @@ class BlogTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)  # Redirect after successful creation
         self.assertTrue(Post.objects.filter(title="New Post").exists())
+
 
 

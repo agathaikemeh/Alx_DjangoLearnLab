@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView  # Import built-in a
 from .views import (  # Import views for posts, comments, tagging, and search
     PostListView,         # View to list all blog posts
     PostDetailView,       # View to display details of a single blog post
-    PostCreateView,       # View to create a new blog post
+    PostCreateView,       # View to create a new blog post (LoginRequiredMixin applied in views.py)
     PostUpdateView,       # View to update an existing blog post
     PostDeleteView,       # View to delete a blog post
     CommentCreateView,    # View to create a new comment
@@ -36,7 +36,7 @@ urlpatterns = [
     # View details of a single post using PostDetailView. <int:pk> captures the post ID
 
     path('post/new/', PostCreateView.as_view(), name='post-create'),
-    # Create a new post using PostCreateView
+    # Create a new post using PostCreateView (protected by LoginRequiredMixin in views.py)
 
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     # Update an existing post using PostUpdateView. Restricted to the post's author

@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404  # Utilities for rendering and retrieving objects
 from django.contrib.auth.views import LoginView, LogoutView  # Built-in authentication views
-from django.contrib.auth.decorators import login_required  # Decorator to restrict access to logged-in users
+from django.contrib.auth.decorators import login_required  # Restrict access to logged-in users
 from django.contrib.auth.models import User  # The built-in User model
 from django.http import HttpResponse  # For sending plain HTTP responses
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView  # Class-based views for CRUD operations
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin  # Mixin for access control
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView  # Class-based views for CRUD
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin  # Mixins for access control
 from django.urls import reverse_lazy  # Utility for lazy URL reversing
 from django.db.models import Q  # For advanced query lookups
 from taggit.models import Tag  # Import Tag model from django-taggit
@@ -24,7 +24,7 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')
+            return redirect('login')  # Redirect to login page after successful registration
     else:
         form = CustomUserCreationForm()
     return render(request, 'blog/register.html', {'form': form})
@@ -33,14 +33,14 @@ def register(request):
 def profile(request):
     """
     View to display and update the user's profile.
-    - Handles email updates for logged-in users.
+    - Allows logged-in users to update their email.
     """
     if request.method == 'POST':
         user = request.user
-        email = request.POST.get('email')
+        email = request.POST.get('email')  # Retrieve email from the form
         if email:
-            user.email = email
-            user.save()
+            user.email = email  # Update the user's email
+            user.save()  # Save changes to the database
             return HttpResponse("Profile updated successfully!")
     return render(request, 'blog/profile.html', {'user': request.user})
 
@@ -97,7 +97,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author
 
 # ----------------------------------------
-# Tag and Search Functionality
+# Tagging and Search Functionality
 # ----------------------------------------
 
 class TagPostListView(ListView):
@@ -114,15 +114,15 @@ class TagPostListView(ListView):
         Fetch the tag from the URL and retrieve associated posts.
         - Uses `get_object_or_404` for proper error handling.
         """
-        tag = get_object_or_404(Tag, name=self.kwargs.get('tag_name'))
-        return Post.objects.filter(tags__name=tag.name)  # Filter posts by tag name
+        tag = get_object_or_404(Tag, name=self.kwargs.get('tag'))  # Get tag from the URL
+        return Post.objects.filter(tags__name__in=[tag])  # Filter posts by tag
 
     def get_context_data(self, **kwargs):
         """
         Add the tag name to the context for use in the template.
         """
         context = super().get_context_data(**kwargs)
-        context['tag'] = self.kwargs.get('tag_name')  # Include the tag name in the context
+        context['tag'] = self.kwargs.get('tag')  # Include the tag name in the context
         return context
 
 def search_posts(request):
@@ -154,7 +154,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     template_name = 'blog/comment_form.html'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        form.instance.author = self.request.user  # Set the comment's author to the logged-in user
         form.instance.post = get_object_or_404(Post, id=self.kwargs['post_id'])  # Link comment to post
         return super().form_valid(form)
 
@@ -187,6 +187,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post-detail', kwargs={'pk': self.object.post.id})  # Redirect to post details
+
 
 
 
